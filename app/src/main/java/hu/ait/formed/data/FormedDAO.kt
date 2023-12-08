@@ -17,7 +17,7 @@ interface FormedDAO {
     fun getAllDances(): Flow<List<Dance>>
 
     @Query("SELECT * from dancetable WHERE id = :id")
-    fun getDance(id: Int): Flow<Dance>
+    suspend fun getDance(id: Int): Dance
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDance(item: Dance)
@@ -30,8 +30,6 @@ interface FormedDAO {
 
     @Query("DELETE from dancetable")
     suspend fun deleteAllDances()
-
-
 
 
 
