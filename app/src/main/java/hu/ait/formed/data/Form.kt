@@ -8,5 +8,5 @@ import java.io.Serializable
 data class Form(
     var id: Int = 0,
     var title: String,
-    var dancers: List<Dancer>
+    var dancers: MutableList<Dancer>
 ) : Serializable

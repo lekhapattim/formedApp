@@ -31,9 +31,15 @@ class FormedDanceListViewModel @Inject constructor(
         }
     }
 
-    fun clearAllShopping() {
+    fun clearAllDances() {
         viewModelScope.launch {
             formedDAO.deleteAllDances()
+        }
+    }
+
+    fun getDance(id: Int) {
+        viewModelScope.launch {
+            formedDAO.getDance(id)
         }
     }
 
