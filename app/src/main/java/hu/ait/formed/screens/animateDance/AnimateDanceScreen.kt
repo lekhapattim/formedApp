@@ -4,6 +4,7 @@ import android.graphics.Point
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -74,7 +75,11 @@ fun AnimateDanceScreen(
             ),
             actions = {
                 IconButton(onClick = {
-                    animateViewModel.isPlaying = animateViewModel.isPlaying
+                    if (animateViewModel.isPlaying) {
+                        animateViewModel.isPlaying = false
+                    } else {
+                        animateViewModel.startAnimation()
+                    }
                 }) {
                     if (animateViewModel.isPlaying) {
                         Icon(Icons.Filled.CheckCircle, null)
@@ -83,27 +88,24 @@ fun AnimateDanceScreen(
                     }
                 }
                 IconButton(onClick = {
-
+                    animateViewModel.startAnimation()
                 }) {
                     Icon(Icons.Filled.Refresh, null)
                 }
             })
-
         Column(modifier = modifier.padding(10.dp)) {
             if (animateViewModel.dance?.forms?.isEmpty()!!) {
                 Text("No forms created for this dance!")
             } else {
                 Canvas(
                     modifier = Modifier
-                        .size(300.dp)
+                        .fillMaxSize()
                 ) {
                     val dancerSize = 10F
                     animateViewModel.points.forEach {start: Offset ->
                         val end = Offset(start.x + dancerSize, start.y + dancerSize)
                         drawX(start, end)
                     }
-
-
                 }
             }
 

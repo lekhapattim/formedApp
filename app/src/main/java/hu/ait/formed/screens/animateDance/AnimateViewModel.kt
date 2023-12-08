@@ -34,7 +34,7 @@ class AnimateViewModel @Inject constructor(
     fun startAnimation() {
         isPlaying = true
         viewModelScope.launch {
-            if(isPlaying) {
+            while(isPlaying) {
                 dance.forms.forEach { form: Form ->
                     points = formToPoints(form)
                     delay(2000)
