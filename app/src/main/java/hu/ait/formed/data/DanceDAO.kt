@@ -9,7 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FormedDAO {
+interface DanceDAO {
 
 
     // dance table
@@ -31,9 +31,6 @@ interface FormedDAO {
 
     @Query("DELETE from dancetable")
     suspend fun deleteAllDances()
-
-
-
 
 
 }

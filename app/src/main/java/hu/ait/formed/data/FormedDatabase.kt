@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [Dance::class, Form::class, Dancer::class], version = 1, exportSchema = false)
 abstract class FormedDatabase : RoomDatabase() {
 
-    abstract fun formedDao(): FormedDAO
+    abstract fun formedDao(): DanceDAO
 
     companion object {
         @Volatile
