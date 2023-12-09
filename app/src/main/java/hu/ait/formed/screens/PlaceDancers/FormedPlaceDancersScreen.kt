@@ -84,16 +84,15 @@ fun FormedPlaceDancersScreen(
     placeDancersViewModel: FormedPlaceDancersViewModel = hiltViewModel()
 ) {
 
-    val initDancers by placeDancersViewModel.getAllDancersByForm(formID).collectAsState(initial = emptyList())
-
 //    var dancerList by rememberSaveable {
 //        mutableStateOf(mutableListOf<Dancer>())
 //    }
 
-    LaunchedEffect(key1 = Unit) {
-        placeDancersViewModel.dancerList = initDancers.toMutableList()
-    }
 
+    val initDancers by placeDancersViewModel.getAllDancersByForm(formID).collectAsState(initial = emptyList())
+    initDancers.toMutableList().forEach{dancer: Dancer ->
+        placeDancersViewModel.dancerList += dancer
+    }
 
 
     val form = placeDancersViewModel.getForm(formID).collectAsState(initial = 0).value
@@ -109,17 +108,23 @@ fun FormedPlaceDancersScreen(
             ),
             actions = {
                 IconButton(onClick = {
-                    // save everything here and navigate back
+
                 }) {
                     Icon(Icons.Filled.Done, null)
                 }
                 IconButton(onClick = {
-                    //clear all the Xs here
-                }) {
+                    placeDancersViewModel.dancerList.forEach{dancer: Dancer ->
+                        placeDancersViewModel.removeDancer(dancer)
+                        placeDancersViewModel.dancerList -= dancer
+                    }
+                }
+                )
+                {
                     Icon(Icons.Filled.Clear, null)
                 }
 
-            })
+            }
+            )
 
         Canvas(
 
@@ -132,13 +137,14 @@ fun FormedPlaceDancersScreen(
                         val clickedDancer = placeDancersViewModel.dancerList.find { isClickWithinDancer(offset, it) }
                         val clickedNum = placeDancersViewModel.getClickedDancer()
                         if (clickedDancer != null) {
-                            placeDancersViewModel.dancerList.remove(clickedDancer)
+                            placeDancersViewModel.dancerList -= clickedDancer
                         } else if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(placeDancersViewModel.dancerList, clickedNum)) {
                             // Add a new X at the clicked position
-                            placeDancersViewModel.dancerList.add(Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
+                            placeDancersViewModel.dancerList += (Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
                             placeDancersViewModel.dancerList.forEach{dancer: Dancer ->
                                 Log.d("dancer log", "${dancer.number}: ${dancer.x}, ${dancer.y}")
                             }
+                            placeDancersViewModel.insertDancer(Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
                         }
                     }
                     detectDragGestures { change, dragAmount ->

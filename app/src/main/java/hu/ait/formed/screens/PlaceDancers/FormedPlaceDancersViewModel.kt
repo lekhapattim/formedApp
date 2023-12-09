@@ -31,8 +31,7 @@ class FormedPlaceDancersViewModel @Inject constructor(
 
     private var clickedDancer: Int? = null
 
-
-    var dancerList by mutableStateOf(mutableListOf<Dancer>())
+    var dancerList by mutableStateOf<List<Dancer>>(emptyList())
 
     fun getForm(id: Int): Flow<Form> {
         return formDAO.getFormByID(id)
@@ -41,6 +40,18 @@ class FormedPlaceDancersViewModel @Inject constructor(
     fun updateForm(formItem: Form) {
         viewModelScope.launch {
             formDAO.updateForm(formItem)
+        }
+    }
+
+    fun insertDancer(dancerItem: Dancer) {
+        viewModelScope.launch {
+            dancersDAO.insertDancer(dancerItem)
+        }
+    }
+
+    fun removeDancer(dancerItem: Dancer) {
+        viewModelScope.launch {
+            dancersDAO.deleteDancer(dancerItem)
         }
     }
 
@@ -74,7 +85,7 @@ class FormedPlaceDancersViewModel @Inject constructor(
 
     fun updateDancerPoints(coords: Pair<Offset, Offset>, clickedNum: Int) {
         var dancer =
-        dancersDAO.getDancerByID(clickedNum)
+            dancersDAO.getDancerByID(clickedNum)
     }
 
 
