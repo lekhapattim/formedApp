@@ -17,7 +17,7 @@ interface DancersDAO {
     fun getAllDancersByForm(id: Int): Flow<List<Dancer>>
 
     @Query("SELECT * from dancerstable WHERE id = :id")
-    fun getDancerByID(id: Int): Flow<Dance>
+    fun getDancerByID(id: Int): Flow<Dancer>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDancer(item: Dancer)

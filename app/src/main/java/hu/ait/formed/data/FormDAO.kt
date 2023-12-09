@@ -29,8 +29,10 @@ interface FormDAO {
     @Delete
     suspend fun deleteForm(item: Form)
 
-    @Query("DELETE from formtable")
-    suspend fun deleteAllDances()
+    @Query("DELETE from formtable where dance_id= :id")
+    suspend fun deleteAllForms(id: Int)
+
+
 
 
 

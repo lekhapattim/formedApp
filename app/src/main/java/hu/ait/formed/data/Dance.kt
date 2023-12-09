@@ -11,4 +11,6 @@ data class Dance(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "title") var title: String,
     @ColumnInfo(name = "numDancers") var numDancers: Int
+
 ) : Serializable
+

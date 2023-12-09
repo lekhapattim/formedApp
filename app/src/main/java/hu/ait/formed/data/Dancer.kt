@@ -1,5 +1,6 @@
 package hu.ait.formed.data
 
+import android.graphics.Point
 import androidx.compose.ui.geometry.Offset
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -15,7 +16,6 @@ import java.io.Serializable
     )])
 data class Dancer(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    @ColumnInfo(name = "number") var number: Int,
     @ColumnInfo(name = "x") var x: Float,
     @ColumnInfo(name = "y") var y: Float,
     @ColumnInfo(name = "placed") var placed: Boolean = false,
