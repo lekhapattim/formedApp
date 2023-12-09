@@ -83,7 +83,7 @@ import java.util.UUID
 fun FormedDanceListScreen(
     modifier: Modifier = Modifier,
     danceListViewModel: FormedDanceListViewModel = hiltViewModel(),
-    onNavigateToDanceForms: (Int) -> Unit,
+    onNavigateToDanceForms: (Int, Int) -> Unit,
     onNavigateToAnimateForms: (Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -179,7 +179,7 @@ fun DanceListCard(
     allForms: List<Form>,
     danceItem: Dance,
     onRemoveItem: () -> Unit,
-    onNavigateToDanceForms: (Int) -> Unit,
+    onNavigateToDanceForms: (Int, Int) -> Unit,
     onNavigateToAnimateForms: (Int) -> Unit
 ){
     Card(
@@ -224,7 +224,7 @@ fun DanceListCard(
                     contentDescription = "Click",
                     modifier = Modifier.clickable {
                         onNavigateToDanceForms(
-                            danceItem.id
+                            danceItem.id, danceItem.numDancers
                         )
                     },
                     tint = Color.Blue
