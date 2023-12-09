@@ -86,8 +86,9 @@ import java.util.UUID
 fun FormedFormsListScreen(
     modifier: Modifier = Modifier,
     danceID: Int,
+    numDancers: Int,
     formsListViewModel: FormedFormsListViewModel = hiltViewModel(),
-    onNavigateToPlaceDancer: (Int) -> Unit
+    onNavigateToPlaceDancer: (Int, Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -156,7 +157,7 @@ fun FormedFormsListScreen(
             else {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
                     items(formList) {
-                        FormListCard(formItem = it,
+                        FormListCard(numDancers, formItem = it,
                             onRemoveItem = {
                                 allDancers.forEach { dancer: Dancer ->
                                     if (dancer.formID == it.id) {
@@ -176,9 +177,10 @@ fun FormedFormsListScreen(
 
 @Composable
 fun FormListCard(
+    numDancers: Int,
     formItem: Form,
     onRemoveItem: () -> Unit,
-    onNavigateToPlaceDancer: (Int) -> Unit
+    onNavigateToPlaceDancer: (Int, Int) -> Unit
 ){
     Card(
         colors = CardDefaults.cardColors(
@@ -220,7 +222,7 @@ fun FormListCard(
                     contentDescription = "Edit",
                     modifier = Modifier.clickable {
                         onNavigateToPlaceDancer(
-                            formItem.id
+                            formItem.id, numDancers
                         )
                     },
                     tint = Color.Blue

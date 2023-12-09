@@ -50,24 +50,27 @@ fun FormedNavHost(
     ) {
         composable("dancelist") {
             FormedDanceListScreen(
-            onNavigateToDanceForms = {danceID->
-                navController.navigate("formlist/$danceID")
+            onNavigateToDanceForms = {danceID, numDancers->
+                navController.navigate("formlist/$danceID/$numDancers")
             }, onNavigateToAnimateForms = {danceID->
                 navController.navigate("animateforms/$danceID")
             }
         )
         }
 
-        composable("formlist/{danceID}",
+        composable("formlist/{danceID}/{numDancers}",
             arguments = listOf(
-                navArgument("danceID"){type = NavType.IntType})
+                navArgument("danceID"){type = NavType.IntType},
+                navArgument("numDancers"){type = NavType.IntType})
         ) {
             val ID = it.arguments?.getInt("danceID")
-            if (ID != null) {
+            val num = it.arguments?.getInt("numDancers")
+            if (ID != null && num != null) {
                 FormedFormsListScreen(
                     danceID = ID,
-                    onNavigateToPlaceDancer = {danceID->
-                        navController.navigate("placedancer/$danceID")
+                    numDancers = num,
+                    onNavigateToPlaceDancer = {danceID, numDancers->
+                        navController.navigate("placedancer/$danceID/$numDancers")
                     }
                 )
             }
