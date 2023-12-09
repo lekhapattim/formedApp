@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Dance::class], version = 1, exportSchema = false)
+@Database(entities = [Dance::class, Form::class, Dancer::class], version = 1, exportSchema = false)
 abstract class FormedDatabase : RoomDatabase() {
 
     abstract fun danceDAO(): DanceDAO

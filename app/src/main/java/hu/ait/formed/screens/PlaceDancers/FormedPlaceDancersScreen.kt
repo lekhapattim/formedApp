@@ -1,5 +1,6 @@
 package hu.ait.formed.screens.PlaceDancers
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hu.ait.formed.data.Dance
 import hu.ait.formed.data.Form
 import hu.ait.formed.data.Dancer
+import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -79,16 +81,17 @@ fun FormedPlaceDancersScreen(
     modifier: Modifier = Modifier,
     formID: Int,
     numDancers: Int,
-    placeDancersViewModel: FormedPlaceDancersViewModel = viewModel()
+    placeDancersViewModel: FormedPlaceDancersViewModel = hiltViewModel()
 ) {
 
     val initDancers by placeDancersViewModel.getAllDancersByForm(formID).collectAsState(initial = emptyList())
 
-    var dancerList: MutableList<Dancer> by rememberSaveable {
-        mutableStateOf(mutableListOf<Dancer>())
-    }
+//    var dancerList by rememberSaveable {
+//        mutableStateOf(mutableListOf<Dancer>())
+//    }
+
     LaunchedEffect(key1 = Unit) {
-        dancerList = initDancers.toMutableList()
+        placeDancersViewModel.dancerList = initDancers.toMutableList()
     }
 
 
@@ -126,19 +129,22 @@ fun FormedPlaceDancersScreen(
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
                         // Check if clicked on existing X, then remove it
-                        val clickedDancer = dancerList.find { isClickWithinDancer(offset, it) }
+                        val clickedDancer = placeDancersViewModel.dancerList.find { isClickWithinDancer(offset, it) }
                         val clickedNum = placeDancersViewModel.getClickedDancer()
                         if (clickedDancer != null) {
-                            dancerList.remove(clickedDancer)
-                        } else if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(dancerList, clickedNum)) {
+                            placeDancersViewModel.dancerList.remove(clickedDancer)
+                        } else if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(placeDancersViewModel.dancerList, clickedNum)) {
                             // Add a new X at the clicked position
-                            dancerList.add(Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
+                            placeDancersViewModel.dancerList.add(Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
+                            placeDancersViewModel.dancerList.forEach{dancer: Dancer ->
+                                Log.d("dancer log", "${dancer.number}: ${dancer.x}, ${dancer.y}")
+                            }
                         }
                     }
                     detectDragGestures { change, dragAmount ->
                         val currentTouchPosition = change.position
                         // Check if the initial touch was inside a dancer
-                        val draggedDancer = dancerList.find { isClickWithinDancer(currentTouchPosition, it) }
+                        val draggedDancer = placeDancersViewModel.dancerList.find { isClickWithinDancer(currentTouchPosition, it) }
 
                         // If a dancer was found, move it
                         draggedDancer?.let {
@@ -149,7 +155,9 @@ fun FormedPlaceDancersScreen(
 
                 }
         ) {
-            drawDancers(dancerList)
+            drawX(Offset(0F,0F), Offset(10F,10F))
+            Log.d("dancerList", placeDancersViewModel.dancerList.size.toString())
+            drawDancers(placeDancersViewModel.dancerList)
         }
 
         BottomAppBar(
@@ -208,13 +216,13 @@ private fun DrawScope.drawX(topleft: Offset, botright: Offset) {
         color = Color.Magenta,
         start = Offset(topleft.x,topleft.y),
         end = Offset(botright.x,botright.y),
-        strokeWidth = 5f
+        strokeWidth = 50f
     )
     drawLine(
         color = Color.Magenta,
         start = Offset(topleft.x,botright.y),
         end = Offset(botright.x,topleft.y),
-        strokeWidth = 5f
+        strokeWidth = 50f
     )
 }
 
@@ -226,10 +234,11 @@ private fun Offset.distanceTo(other: Offset): Float {
 
 private fun DrawScope.drawDancers(dancersList: List<Dancer>) {
     dancersList.forEach {dancer: Dancer ->
-        val dancerSize = 10F
+        val dancerSize = 100F
         val start = Offset(dancer.x, dancer.y)
         val end = Offset(dancer.x + dancerSize, dancer.y + dancerSize)
         drawX(start, end)
+        Log.d("dancer draw log", "${dancer.number}: ${dancer.x}, ${dancer.y}")
     }
 }
 
@@ -243,7 +252,7 @@ fun isClickWithinDancer(clickOffset: Offset, dancer: Dancer): Boolean {
 }
 
 fun isDancerAssigned(dancersList: List<Dancer>, clickedNum: Int?): Boolean {
-    for (i in 1..dancersList.size) {
+    for (i in 0 until dancersList.size) {
         if (dancersList[i].number == clickedNum) {
             return true
         }

@@ -1,7 +1,11 @@
 package hu.ait.formed.screens.PlaceDancers
 
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +30,9 @@ class FormedPlaceDancersViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var clickedDancer: Int? = null
+
+
+    var dancerList by mutableStateOf(mutableListOf<Dancer>())
 
     fun getForm(id: Int): Flow<Form> {
         return formDAO.getFormByID(id)
