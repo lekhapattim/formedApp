@@ -10,8 +10,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import dagger.hilt.android.AndroidEntryPoint
+import hu.ait.formed.screens.AllDances.FormedDanceListScreen
+import hu.ait.formed.screens.AllForms.FormedFormsListScreen
 import hu.ait.formed.ui.theme.FormedTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    FormedNavHost()
                 }
             }
         }
@@ -30,17 +40,37 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun FormedNavHost(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = "dancelist"
+) {
+    NavHost(
+        modifier = modifier, navController = navController, startDestination = startDestination
+    ) {
+        composable("dancelist") {
+            FormedDanceListScreen(
+            onNavigateToDanceForms = {danceID->
+                navController.navigate("formlist/$danceID")
+            }, onNavigateToAnimateForms = {danceID->
+                navController.navigate("animateforms/$danceID")
+            }
+        )
+        }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FormedTheme {
-        Greeting("Android")
+        composable("formlist/{danceID}",
+            arguments = listOf(
+                navArgument("danceID"){type = NavType.IntType})
+        ) {
+            val ID = it.arguments?.getInt("danceID")
+            if (ID != null) {
+                FormedFormsListScreen(
+                    danceID = ID,
+                    onNavigateToPlaceDancer = {danceID->
+                        navController.navigate("placedancer/$danceID")
+                    }
+                )
+            }
+        }
     }
 }

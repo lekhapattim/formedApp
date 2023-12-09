@@ -1,5 +1,6 @@
 package hu.ait.formed.data
 
+import android.graphics.Point
 import androidx.compose.ui.geometry.Offset
 import androidx.room.ColumnInfo
 import androidx.room.Entity
