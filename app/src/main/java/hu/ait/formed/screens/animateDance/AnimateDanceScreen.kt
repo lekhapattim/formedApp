@@ -1,21 +1,14 @@
 package hu.ait.formed.screens.animateDance
 
-import android.graphics.Point
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,24 +17,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import hu.ait.formed.R
-import hu.ait.formed.data.Dance
+import hu.ait.formed.data.Dancer
 import hu.ait.formed.data.Form
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,34 +39,31 @@ fun AnimateDanceScreen(
     danceID: Int
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
+    val formsList by animateViewModel.getFormsByDance(danceID).collectAsState(emptyList())
+    val dance by animateViewModel.getDance(danceID).collectAsState(null)
 
+    val dancers by animateViewModel.dancersFlow.collectAsState(emptyList())
 
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            val launchedDance = animateViewModel.getDance(danceID)
-
-            animateViewModel.dance = launchedDance
-        }
-    }
 
 
     Column {
 
+        Button(onClick = { /*TODO*/
+
+        }) {
+
+        }
+
         TopAppBar(
             title = {
-                Text("Animate Dance: ${animateViewModel.dance?.title}")
+                Text("Animate ${dance?.title ?: "no dance"}")
             },
             colors = TopAppBarDefaults.smallTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
             actions = {
                 IconButton(onClick = {
-                    if (animateViewModel.isPlaying) {
-                        animateViewModel.isPlaying = false
-                    } else {
-                        animateViewModel.startAnimation()
-                    }
+                    animateViewModel.isPlaying = !animateViewModel.isPlaying
                 }) {
                     if (animateViewModel.isPlaying) {
                         Icon(Icons.Filled.CheckCircle, null)
@@ -88,28 +72,37 @@ fun AnimateDanceScreen(
                     }
                 }
                 IconButton(onClick = {
-                    animateViewModel.startAnimation()
+                    animateViewModel.isPlaying = false
+                    animateViewModel.isPlaying = true
                 }) {
                     Icon(Icons.Filled.Refresh, null)
                 }
             })
         Column(modifier = modifier.padding(10.dp)) {
-            if (animateViewModel.dance?.forms?.isEmpty()!!) {
+            if (formsList.isEmpty()) {
                 Text("No forms created for this dance!")
             } else {
+                if (animateViewModel.isPlaying) {
+                    startAnimation(formsList = formsList, dancers, animateViewModel = animateViewModel)
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    val dancerSize = 10F
-                    animateViewModel.points.forEach {start: Offset ->
-                        val end = Offset(start.x + dancerSize, start.y + dancerSize)
-                        drawX(start, end)
+                    drawDancers(dancers)
                     }
                 }
             }
 
         }
+    }
+}
+
+private fun DrawScope.drawDancers(dancersList: List<Dancer>) {
+    dancersList.forEach {dancer: Dancer ->
+        val dancerSize = 10F
+        val start = Offset(dancer.x, dancer.y)
+        val end = Offset(dancer.x + dancerSize, dancer.y + dancerSize)
+        drawX(start, end)
     }
 }
 
@@ -127,4 +120,19 @@ private fun DrawScope.drawX(topleft: Offset, botright: Offset) {
         end = Offset(botright.x,topleft.y),
         strokeWidth = 5f
     )
+}
+
+@Composable
+fun startAnimation(formsList: List<Form>, dancersList: List<Dancer>, animateViewModel: AnimateViewModel){
+    val coroutineScope = rememberCoroutineScope()
+    while(animateViewModel.isPlaying) {
+        formsList.forEach { curForm: Form ->
+            val curDancers by animateViewModel.getAllDancersByForm(curForm.id).collectAsState(emptyList())
+            coroutineScope.launch {
+                animateViewModel.updateDancers(curDancers)
+                delay(2000)
+            }
+        }
+        animateViewModel.isPlaying = false
+    }
 }

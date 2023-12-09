@@ -1,57 +1,54 @@
 package hu.ait.formed.screens.animateDance
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.ait.formed.data.FormedDAO
 import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import hu.ait.formed.data.Dance
+import hu.ait.formed.data.DanceDAO
 import hu.ait.formed.data.Dancer
+import hu.ait.formed.data.DancersDAO
 import hu.ait.formed.data.Form
+import hu.ait.formed.data.FormDAO
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AnimateViewModel @Inject constructor(
-    private val formedDAO: FormedDAO
+    private val danceDAO: DanceDAO,
+    private val formDAO: FormDAO,
+    private val dancersDAO: DancersDAO
 ) : ViewModel() {
-
-    lateinit var dance: Dance
 
     var isPlaying by mutableStateOf(false)
 
+    private val _dancers = MutableStateFlow<List<Dancer>>(emptyList())
+    val dancersFlow: Flow<List<Dancer>> get() = _dancers
 
-    var points by mutableStateOf<List<Offset>>(emptyList())
 
-    suspend fun getDance(id: Int): Dance {
-        return formedDAO.getDance(id)
+    fun updateDancers(newDancers: List<Dancer>) {
+        _dancers.value = newDancers
     }
 
-    fun startAnimation() {
-        isPlaying = true
-        viewModelScope.launch {
-            while(isPlaying) {
-                dance.forms.forEach { form: Form ->
-                    points = formToPoints(form)
-                    delay(2000)
-                    // TODO: create animated movements
-                }
-                isPlaying = false
-            }
-        }
+    fun getDance(id: Int): Flow<Dance> {
+        return danceDAO.getDance(id)
     }
 
-
-    fun formToPoints(form: Form): List<Offset>  {
-        val list = emptyList<Offset>().toMutableList()
-        form.dancers.forEach {dancer: Dancer ->
-            list += dancer.offset
-        }
-        return list
+    fun getFormsByDance(id: Int): Flow<List<Form>> {
+        return formDAO.getFormsByDance(id)
+    }
+    
+    fun getAllDancersByForm(id: Int): Flow<List<Dancer>> {
+        return dancersDAO.getAllDancersByForm(id)
     }
 
 

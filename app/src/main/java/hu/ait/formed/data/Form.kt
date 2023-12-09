@@ -14,6 +14,5 @@ import java.io.Serializable
 data class Form(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "title") var title: String,
-    @ColumnInfo(name = "dancers") var dancers: List<Dancer>,
     @ColumnInfo(name = "dance_id") var danceID: Int
 ) : Serializable

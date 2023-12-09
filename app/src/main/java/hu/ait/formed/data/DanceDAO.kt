@@ -17,7 +17,7 @@ interface DanceDAO {
     fun getAllDances(): Flow<List<Dance>>
 
     @Query("SELECT * from dancetable WHERE id = :id")
-    suspend fun getDance(id: Int): Dance
+    fun getDance(id: Int): Flow<Dance>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDance(item: Dance)
