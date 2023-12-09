@@ -5,22 +5,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import androidx.lifecycle.viewModelScope
 import hu.ait.formed.data.Dance
 import hu.ait.formed.data.DanceDAO
 import hu.ait.formed.data.Dancer
 import hu.ait.formed.data.DancersDAO
 import hu.ait.formed.data.Form
 import hu.ait.formed.data.FormDAO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AnimateViewModel @Inject constructor(
@@ -40,11 +34,6 @@ class AnimateViewModel @Inject constructor(
     fun getFormsByDance(id: Int): Flow<List<Form>> {
         return formDAO.getFormsByDance(id)
     }
-
-    fun getFormByID(id: Int): Flow<Form> {
-        return formDAO.getFormByID(id)
-    }
-
     
     fun getAllDancersByForm(id: Int): Flow<List<Dancer>> {
         return dancersDAO.getAllDancersByForm(id)
