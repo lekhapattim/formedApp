@@ -148,7 +148,7 @@ fun FormedDanceListScreen(
             else {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
                     items(danceList) {
-                        DanceListCard(danceItem = it,
+                        DanceListCard(allDancers, allForms, danceItem = it,
                             onRemoveItem = {
                                 allForms.forEach{form: Form ->
                                     if (form.danceID == it.id){
@@ -175,6 +175,8 @@ fun FormedDanceListScreen(
 
 @Composable
 fun DanceListCard(
+    allDancers: List<Dancer>,
+    allForms: List<Form>,
     danceItem: Dance,
     onRemoveItem: () -> Unit,
     onNavigateToDanceForms: (Int) -> Unit,
@@ -231,9 +233,11 @@ fun DanceListCard(
                     imageVector = Icons.Filled.PlayArrow,
                     contentDescription = "Animate",
                     modifier = Modifier.clickable {
-                        onNavigateToAnimateForms(
-                            danceItem.id
-                        )
+                        if (allDancers.isNotEmpty() && allForms.isNotEmpty()){
+                            onNavigateToAnimateForms(
+                                danceItem.id
+                            )
+                        }
                     },
                     tint = Color.Blue
                 )
