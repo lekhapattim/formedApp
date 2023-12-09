@@ -16,10 +16,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import dagger.hilt.android.AndroidEntryPoint
 import hu.ait.formed.screens.AllDances.FormedDanceListScreen
 import hu.ait.formed.screens.AllForms.FormedFormsListScreen
 import hu.ait.formed.ui.theme.FormedTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +48,8 @@ fun FormedNavHost(
     NavHost(
         modifier = modifier, navController = navController, startDestination = startDestination
     ) {
-        composable("weatherlist") { FormedDanceListScreen(
+        composable("dancelist") {
+            FormedDanceListScreen(
             onNavigateToDanceForms = {danceID->
                 navController.navigate("formlist/$danceID")
             }, onNavigateToAnimateForms = {danceID->

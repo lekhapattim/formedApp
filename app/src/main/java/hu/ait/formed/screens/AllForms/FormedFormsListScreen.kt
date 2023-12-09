@@ -72,6 +72,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import hu.ait.formed.data.Dance
+import hu.ait.formed.data.Dancer
 import hu.ait.formed.data.Form
 import hu.ait.formed.screens.AllDances.FormedDanceListViewModel
 import hu.ait.formed.screens.AllDances.FormedFormsListViewModel
@@ -93,6 +94,18 @@ fun FormedFormsListScreen(
     val formList by
     formsListViewModel.getAllForms(danceID).collectAsState(emptyList())
 
+    val dance by
+    formsListViewModel.getDance(danceID).collectAsState(null)
+
+    var allDancers = mutableListOf<Dancer>()
+
+    formList.forEach{form: Form ->
+        val dancersList by formsListViewModel.getAllDancers(form.id).collectAsState(emptyList())
+        dancersList.forEach { dancer: Dancer ->
+            allDancers.add(dancer)
+        }
+    }
+
     var showAddFormListDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -105,13 +118,17 @@ fun FormedFormsListScreen(
 
         TopAppBar(
             title = {
-                Text("Dances List")
+                Text(dance?.title ?: "Forms List")
             },
             colors = TopAppBarDefaults.smallTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
             actions = {
                 IconButton(onClick = {
+                    allDancers.forEach{dancer: Dancer ->
+                        formsListViewModel.removeDancer(dancer)
+                        allDancers.remove(dancer)
+                    }
                     formsListViewModel.clearAllForms(danceID)
                 }) {
                     Icon(Icons.Filled.Delete, null)
@@ -140,7 +157,14 @@ fun FormedFormsListScreen(
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
                     items(formList) {
                         FormListCard(formItem = it,
-                            onRemoveItem = {formsListViewModel.removeForm(it)}, onNavigateToPlaceDancer)
+                            onRemoveItem = {
+                                allDancers.forEach { dancer: Dancer ->
+                                    if (dancer.formID == it.id) {
+                                        formsListViewModel.removeDancer(dancer)
+                                        allDancers.remove(dancer)
+                                    }
+                                }
+                                formsListViewModel.removeForm(it)}, onNavigateToPlaceDancer)
                     }
                 }
             }
@@ -180,7 +204,7 @@ fun FormListCard(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(formItem.title, modifier = Modifier.fillMaxWidth())
+                Text(formItem.title, modifier = Modifier.fillMaxWidth(0.8f))
                 Spacer(modifier = Modifier.width(10.dp))
                 Icon(
                     imageVector = Icons.Filled.Delete,
@@ -190,6 +214,7 @@ fun FormListCard(
                     },
                     tint = Color.Red
                 )
+                Spacer(modifier = Modifier.width(10.dp))
                 Icon(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "Edit",
@@ -198,7 +223,7 @@ fun FormListCard(
                             formItem.id
                         )
                     },
-                    tint = Color.Red
+                    tint = Color.Blue
                 )
             }
 
@@ -245,6 +270,7 @@ fun AddNewFormForm(
                 isError = inputErrorStateTitle,
                 onValueChange = {
                     formListTitle = it
+                    inputErrorStateTitle = false
                 },
                 label = { if (inputErrorStateTitle) {
                     Text(
