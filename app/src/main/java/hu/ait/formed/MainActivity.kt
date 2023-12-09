@@ -19,7 +19,7 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import hu.ait.formed.screens.AllDances.FormedDanceListScreen
 import hu.ait.formed.screens.AllForms.FormedFormsListScreen
-import hu.ait.formed.screens.animateDance.AnimateDanceScreen
+import hu.ait.formed.screens.PlaceDancers.FormedPlaceDancersScreen
 import hu.ait.formed.ui.theme.FormedTheme
 
 @AndroidEntryPoint
@@ -51,39 +51,45 @@ fun FormedNavHost(
     ) {
         composable("dancelist") {
             FormedDanceListScreen(
-            onNavigateToDanceForms = {danceID->
-                navController.navigate("formlist/$danceID")
+            onNavigateToDanceForms = {danceID, numDancers->
+                navController.navigate("formlist/$danceID/$numDancers")
             }, onNavigateToAnimateForms = {danceID->
                 navController.navigate("animateforms/$danceID")
             }
         )
         }
 
-        composable("formlist/{danceID}",
+        composable("formlist/{danceID}/{numDancers}",
             arguments = listOf(
-                navArgument("danceID"){type = NavType.IntType})
+                navArgument("danceID"){type = NavType.IntType},
+                navArgument("numDancers"){type = NavType.IntType})
         ) {
             val ID = it.arguments?.getInt("danceID")
-            if (ID != null) {
+            val num = it.arguments?.getInt("numDancers")
+            if (ID != null && num != null) {
                 FormedFormsListScreen(
                     danceID = ID,
-                    onNavigateToPlaceDancer = {danceID->
-                        navController.navigate("placedancer/$danceID")
+                    numDancers = num,
+                    onNavigateToPlaceDancer = {formID, numDancers->
+                        navController.navigate("placedancer/$formID/$numDancers")
                     }
                 )
             }
         }
-
-        composable("animatedance/{danceID}",
+        composable("placedancer/{formID}/{numDancers}",
             arguments = listOf(
-                navArgument("danceID"){type = NavType.IntType})
+                navArgument("formID"){type = NavType.IntType},
+                navArgument("numDancers"){type = NavType.IntType})
         ) {
-            val id = it.arguments?.getInt("danceID")
-            if (id != null) {
-                AnimateDanceScreen(
-                    danceID = id
+            val ID = it.arguments?.getInt("formID")
+            val num = it.arguments?.getInt("numDancers")
+            if (ID != null && num != null) {
+                FormedPlaceDancersScreen(
+                    formID = ID,
+                    numDancers = num,
                 )
             }
         }
+
     }
 }
