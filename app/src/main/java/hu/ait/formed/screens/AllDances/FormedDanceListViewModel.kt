@@ -4,42 +4,36 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.ait.formed.data.Dance
+import hu.ait.formed.data.DanceDAO
 import hu.ait.formed.data.Form
-import hu.ait.formed.data.FormedDAO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FormedDanceListViewModel @Inject constructor(
-    private val formedDAO: FormedDAO
+    private val danceDAO: DanceDAO
 ) : ViewModel() {
 
     fun getAllDances(): Flow<List<Dance>> {
-        return formedDAO.getAllDances()
+        return danceDAO.getAllDances()
     }
 
     fun addNewDance(danceItem: Dance) {
         viewModelScope.launch{
-            formedDAO.insertDance(danceItem)
+            danceDAO.insertDance(danceItem)
         }
     }
 
     fun removeDance(danceItem: Dance) {
         viewModelScope.launch {
-            formedDAO.deleteDance(danceItem)
+            danceDAO.deleteDance(danceItem)
         }
     }
 
     fun clearAllDances() {
         viewModelScope.launch {
-            formedDAO.deleteAllDances()
-        }
-    }
-
-    fun getDance(id: Int) {
-        viewModelScope.launch {
-            formedDAO.getDance(id)
+            danceDAO.deleteAllDances()
         }
     }
 

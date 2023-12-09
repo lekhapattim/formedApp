@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -89,13 +90,8 @@ fun FormedFormsListScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            val launchedDance = formsListViewModel.getDance(danceID)
-
-            formsListViewModel.dance = launchedDance
-        }
-    }
+    val formList by
+    formsListViewModel.getAllForms(danceID).collectAsState(emptyList())
 
     var showAddFormListDialog by rememberSaveable {
         mutableStateOf(false)
@@ -116,7 +112,7 @@ fun FormedFormsListScreen(
             ),
             actions = {
                 IconButton(onClick = {
-                    formsListViewModel.clearAllForms(formsListViewModel.dance)
+                    formsListViewModel.clearAllForms(danceID)
                 }) {
                     Icon(Icons.Filled.Delete, null)
                 }
@@ -132,19 +128,19 @@ fun FormedFormsListScreen(
         Column(modifier = modifier.padding(10.dp)) {
 
             if (showAddFormListDialog) {
-                AddNewFormForm(formsListViewModel,
+                AddNewFormForm(danceID, formsListViewModel,
                     { showAddFormListDialog = false},
                     formListItem)
             }
 
-            if (formsListViewModel.getAllForms(formsListViewModel.dance).isEmpty()) {
+            if (formList.isEmpty()) {
                 Text(text = "No forms")
             }
             else {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(formsListViewModel.getAllForms(formsListViewModel.dance)) {
-                        DanceListCard(danceID, formItem = it,
-                            onRemoveItem = {formsListViewModel.removeForm(formsListViewModel.dance,it)}, onNavigateToPlaceDancer)
+                    items(formList) {
+                        FormListCard(formItem = it,
+                            onRemoveItem = {formsListViewModel.removeForm(it)}, onNavigateToPlaceDancer)
                     }
                 }
             }
@@ -155,8 +151,7 @@ fun FormedFormsListScreen(
 }
 
 @Composable
-fun DanceListCard(
-    danceID: Int,
+fun FormListCard(
     formItem: Form,
     onRemoveItem: () -> Unit,
     onNavigateToPlaceDancer: (Int) -> Unit
@@ -196,11 +191,11 @@ fun DanceListCard(
                     tint = Color.Red
                 )
                 Icon(
-                    imageVector = Icons.Filled.Send,
-                    contentDescription = "Click",
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "Edit",
                     modifier = Modifier.clickable {
                         onNavigateToPlaceDancer(
-                            danceID
+                            formItem.id
                         )
                     },
                     tint = Color.Red
@@ -217,6 +212,7 @@ fun DanceListCard(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AddNewFormForm(
+    danceID: Int,
     formsListViewModel: FormedFormsListViewModel,
     onDialogDismiss: () -> Unit,
     formListItem: Form? = null
@@ -276,11 +272,10 @@ fun AddNewFormForm(
                     Button(onClick = {
                         if (formListTitle.isNotBlank()){
                             formsListViewModel.addNewForm(
-                                formsListViewModel.dance,
                                 Form(
                                     0,
                                     formListTitle,
-                                    mutableListOf(),
+                                    danceID,
                                 )
                             )
                             onDialogDismiss()

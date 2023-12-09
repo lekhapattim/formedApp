@@ -49,6 +49,8 @@ fun FormedNavHost(
         composable("weatherlist") { FormedDanceListScreen(
             onNavigateToDanceForms = {danceID->
                 navController.navigate("formlist/$danceID")
+            }, onNavigateToAnimateForms = {danceID->
+                navController.navigate("animateforms/$danceID")
             }
         )
         }

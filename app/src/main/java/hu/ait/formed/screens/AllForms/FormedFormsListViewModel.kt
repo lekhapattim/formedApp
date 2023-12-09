@@ -4,48 +4,44 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.ait.formed.data.Dance
+import hu.ait.formed.data.DanceDAO
 import hu.ait.formed.data.Form
-import hu.ait.formed.data.FormedDAO
+import hu.ait.formed.data.FormDAO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FormedFormsListViewModel @Inject constructor(
-    private val formedDAO: FormedDAO
+    private val formDAO: FormDAO
 ) : ViewModel() {
 
-    lateinit var dance: Dance
 
-    suspend fun getDance(id: Int): Dance {
-        return formedDAO.getDance(id)
+    fun getAllForms(id: Int): Flow<List<Form>> {
+        return formDAO.getFormsByDance(id)
     }
 
-
-    fun getAllForms(dance: Dance): MutableList<Form> {
-        return dance.forms
+    fun addNewForm(form:Form) {
+        viewModelScope.launch{
+            formDAO.insertForm(form)
+        }
     }
 
-    fun addNewForm(dance:Dance, form:Form) {
-        dance.forms.add(form)
-        updateDance(dance)
-
+    fun removeForm(form:Form) {
+        viewModelScope.launch{
+            formDAO.deleteForm(form)
+        }
     }
 
-    fun removeForm(dance:Dance, form:Form) {
-        dance.forms.remove(form)
-        updateDance(dance)
-
+    fun clearAllForms(id: Int){
+        viewModelScope.launch{
+            formDAO.deleteAllForms(id)
+        }
     }
 
-    fun clearAllForms(dance: Dance){
-        dance.forms.clear()
-        updateDance(dance)
-    }
-
-    private fun updateDance(dance: Dance){
+    private fun updateForm(form: Form){
         viewModelScope.launch {
-            formedDAO.updateDance(dance)
+            formDAO.updateForm(form)
         }
     }
 

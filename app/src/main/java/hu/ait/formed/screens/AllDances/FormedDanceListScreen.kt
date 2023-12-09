@@ -27,11 +27,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.ArrowDropDown
@@ -80,7 +82,8 @@ import java.util.UUID
 fun FormedDanceListScreen(
     modifier: Modifier = Modifier,
     danceListViewModel: FormedDanceListViewModel = hiltViewModel(),
-    onNavigateToDanceForms: (Int) -> Unit
+    onNavigateToDanceForms: (Int) -> Unit,
+    onNavigateToAnimateForms: (Int) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -134,7 +137,7 @@ fun FormedDanceListScreen(
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
                     items(danceList) {
                         DanceListCard(danceItem = it,
-                            onRemoveItem = {danceListViewModel.removeDance(it)}, onNavigateToDanceForms)
+                            onRemoveItem = {danceListViewModel.removeDance(it)}, onNavigateToDanceForms, onNavigateToAnimateForms)
                     }
                 }
             }
@@ -148,7 +151,8 @@ fun FormedDanceListScreen(
 fun DanceListCard(
     danceItem: Dance,
     onRemoveItem: () -> Unit,
-    onNavigateToDanceForms: (Int) -> Unit
+    onNavigateToDanceForms: (Int) -> Unit,
+    onNavigateToAnimateForms: (Int) -> Unit
 ){
     Card(
         colors = CardDefaults.cardColors(
@@ -188,14 +192,24 @@ fun DanceListCard(
                     tint = Color.Red
                 )
                 Icon(
-                    imageVector = Icons.Filled.Send,
+                    imageVector = Icons.Filled.ArrowForward,
                     contentDescription = "Click",
                     modifier = Modifier.clickable {
                         onNavigateToDanceForms(
                             danceItem.id
                         )
                     },
-                    tint = Color.Red
+                    tint = Color.Blue
+                )
+                Icon(
+                    imageVector = Icons.Filled.PlayArrow,
+                    contentDescription = "Animate",
+                    modifier = Modifier.clickable {
+                        onNavigateToAnimateForms(
+                            danceItem.id
+                        )
+                    },
+                    tint = Color.Blue
                 )
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -332,7 +346,6 @@ fun AddNewDanceForm(
                             danceListViewModel.addNewDance(
                                 Dance(
                                     0,
-                                    mutableListOf(),
                                     danceListTitle,
                                     danceListNumDancers.toInt(),
                                 )

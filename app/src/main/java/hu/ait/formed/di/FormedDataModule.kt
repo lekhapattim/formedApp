@@ -7,6 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import hu.ait.formed.data.DanceDAO
+import hu.ait.formed.data.DancersDAO
+import hu.ait.formed.data.FormDAO
 import hu.ait.formed.data.FormedDatabase
 import javax.inject.Singleton
 
@@ -14,9 +16,20 @@ import javax.inject.Singleton
 @Module
 class DatabaseModule {
     @Provides
-    fun provideFormedDao(appDatabase: FormedDatabase): DanceDAO {
-        return appDatabase.formedDao()
+    fun provideDanceDao(appDatabase: FormedDatabase): DanceDAO {
+        return appDatabase.danceDAO()
     }
+
+    @Provides
+    fun provideFormDao(appDatabase: FormedDatabase): FormDAO {
+        return appDatabase.formDAO()
+    }
+
+    @Provides
+    fun provideDancersDao(appDatabase: FormedDatabase): DancersDAO {
+        return appDatabase.dancersDAO()
+    }
+
 
     @Provides
     @Singleton
