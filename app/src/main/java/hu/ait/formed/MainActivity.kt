@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import hu.ait.formed.screens.AllDances.FormedDanceListScreen
 import hu.ait.formed.screens.AllForms.FormedFormsListScreen
+import hu.ait.formed.screens.animateDance.AnimateDanceScreen
 import hu.ait.formed.ui.theme.FormedTheme
 
 @AndroidEntryPoint
@@ -69,6 +70,18 @@ fun FormedNavHost(
                     onNavigateToPlaceDancer = {danceID->
                         navController.navigate("placedancer/$danceID")
                     }
+                )
+            }
+        }
+
+        composable("animatedance/{danceID}",
+            arguments = listOf(
+                navArgument("danceID"){type = NavType.IntType})
+        ) {
+            val id = it.arguments?.getInt("danceID")
+            if (id != null) {
+                AnimateDanceScreen(
+                    danceID = id
                 )
             }
         }

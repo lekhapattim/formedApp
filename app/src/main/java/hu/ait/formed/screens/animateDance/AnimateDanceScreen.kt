@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -17,9 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -42,18 +46,8 @@ fun AnimateDanceScreen(
     val formsList by animateViewModel.getFormsByDance(danceID).collectAsState(emptyList())
     val dance by animateViewModel.getDance(danceID).collectAsState(null)
 
-    val dancers by animateViewModel.dancersFlow.collectAsState(emptyList())
-
-
 
     Column {
-
-        Button(onClick = { /*TODO*/
-
-        }) {
-
-        }
-
         TopAppBar(
             title = {
                 Text("Animate ${dance?.title ?: "no dance"}")
@@ -83,16 +77,15 @@ fun AnimateDanceScreen(
                 Text("No forms created for this dance!")
             } else {
                 if (animateViewModel.isPlaying) {
-                    startAnimation(formsList = formsList, dancers, animateViewModel = animateViewModel)
+                    startAnimation(formsList = formsList, animateViewModel.dancerList, animateViewModel = animateViewModel)
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    drawDancers(dancers)
+                    drawDancers(animateViewModel.dancerList)
                     }
                 }
             }
-
         }
     }
 }
@@ -129,7 +122,10 @@ fun startAnimation(formsList: List<Form>, dancersList: List<Dancer>, animateView
         formsList.forEach { curForm: Form ->
             val curDancers by animateViewModel.getAllDancersByForm(curForm.id).collectAsState(emptyList())
             coroutineScope.launch {
-                animateViewModel.updateDancers(curDancers)
+                animateViewModel.dancerList = emptyList()
+                curDancers.forEach {dancer: Dancer ->
+                    animateViewModel.dancerList += dancer
+                }
                 delay(2000)
             }
         }

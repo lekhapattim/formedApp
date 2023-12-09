@@ -31,13 +31,7 @@ class AnimateViewModel @Inject constructor(
 
     var isPlaying by mutableStateOf(false)
 
-    private val _dancers = MutableStateFlow<List<Dancer>>(emptyList())
-    val dancersFlow: Flow<List<Dancer>> get() = _dancers
-
-
-    fun updateDancers(newDancers: List<Dancer>) {
-        _dancers.value = newDancers
-    }
+    var dancerList by mutableStateOf<List<Dancer>>(emptyList())
 
     fun getDance(id: Int): Flow<Dance> {
         return danceDAO.getDance(id)
@@ -50,6 +44,7 @@ class AnimateViewModel @Inject constructor(
     fun getFormByID(id: Int): Flow<Form> {
         return formDAO.getFormByID(id)
     }
+
     
     fun getAllDancersByForm(id: Int): Flow<List<Dancer>> {
         return dancersDAO.getAllDancersByForm(id)
