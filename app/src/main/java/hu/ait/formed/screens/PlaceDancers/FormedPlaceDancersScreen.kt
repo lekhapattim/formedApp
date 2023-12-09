@@ -59,34 +59,41 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormedPlaceDancersScreen(
     modifier: Modifier = Modifier,
-    danceID: Int,
+    formID: Int,
+    numDancers: Int,
     placeDancersViewModel: FormedPlaceDancersViewModel = viewModel()
 ) {
 
-    var dance by rememberSaveable{
-        mutableStateOf<Dance?>(null)
+    val initDancers by placeDancersViewModel.getAllDancersByForm(formID).collectAsState(initial = emptyList())
+
+    var dancerList: MutableList<Dancer> by rememberSaveable {
+        mutableStateOf(mutableListOf<Dancer>())
+    }
+    LaunchedEffect(key1 = Unit) {
+        dancerList = initDancers.toMutableList()
     }
 
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            val launchedDance = placeDancersViewModel.getDance(danceID)
 
-            dance = launchedDance
-        }
-    }
+    val form = placeDancersViewModel.getForm(formID).collectAsState(initial = 0).value
 
 
     Column {
@@ -99,7 +106,7 @@ fun FormedPlaceDancersScreen(
             ),
             actions = {
                 IconButton(onClick = {
-                    placeDancersViewModel.updateDance(dance)
+                    // save everything here and navigate back
                 }) {
                     Icon(Icons.Filled.Done, null)
                 }
@@ -112,18 +119,44 @@ fun FormedPlaceDancersScreen(
             })
 
         Canvas(
+
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // Check if clicked on existing X, then remove it
+                        val clickedDancer = dancerList.find { isClickWithinDancer(offset, it) }
+                        val clickedNum = placeDancersViewModel.getClickedDancer()
+                        if (clickedDancer != null) {
+                            dancerList.remove(clickedDancer)
+                        } else if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(dancerList, clickedNum)) {
+                            // Add a new X at the clicked position
+                            dancerList.add(Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
+                        }
+                    }
+                    detectDragGestures { change, dragAmount ->
+                        val currentTouchPosition = change.position
+                        // Check if the initial touch was inside a dancer
+                        val draggedDancer = dancerList.find { isClickWithinDancer(currentTouchPosition, it) }
+
+                        // If a dancer was found, move it
+                        draggedDancer?.let {
+                            it.x = it.x + dragAmount.x
+                            it.y = it.y + dragAmount.y
+                        }
+                    }
+
+                }
         ) {
-            // Draw your content on the canvas here
+            drawDancers(dancerList)
         }
 
         BottomAppBar(
             modifier = Modifier.fillMaxWidth(),
             containerColor = Color.White
         ) {
-            NumberedButtonList(placeDancersViewModel, numDancers = dance?.numDancers)
+            NumberedButtonList(placeDancersViewModel, numDancers)
         }
     }
 }
@@ -154,6 +187,9 @@ fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?) {
             if (number != null) {
                 buttonViewModel.setClickedDancer(number)
             }
+            if (!isButtonClicked) {
+                buttonViewModel.setClickedDancer(null)
+            }
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isButtonClicked) Color.Green else Color.Black
@@ -180,4 +216,37 @@ private fun DrawScope.drawX(topleft: Offset, botright: Offset) {
         end = Offset(botright.x,topleft.y),
         strokeWidth = 5f
     )
+}
+
+private fun Offset.distanceTo(other: Offset): Float {
+    val dx = x - other.x
+    val dy = y - other.y
+    return kotlin.math.sqrt(dx * dx + dy * dy)
+}
+
+private fun DrawScope.drawDancers(dancersList: List<Dancer>) {
+    dancersList.forEach {dancer: Dancer ->
+        val dancerSize = 10F
+        val start = Offset(dancer.x, dancer.y)
+        val end = Offset(dancer.x + dancerSize, dancer.y + dancerSize)
+        drawX(start, end)
+    }
+}
+
+fun isClickWithinDancer(clickOffset: Offset, dancer: Dancer): Boolean {
+    val size = 10f
+
+    return (clickOffset.x >= dancer.x &&
+            clickOffset.x <= dancer.x + size &&
+            clickOffset.y >= dancer.y &&
+            clickOffset.y <= dancer.y + size)
+}
+
+fun isDancerAssigned(dancersList: List<Dancer>, clickedNum: Int?): Boolean {
+    for (i in 1..dancersList.size) {
+        if (dancersList[i].number == clickedNum) {
+            return true
+        }
+    }
+    return false
 }

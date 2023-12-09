@@ -1,39 +1,43 @@
 package hu.ait.formed.screens.PlaceDancers
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.ait.formed.data.FormedDAO
 import hu.ait.formed.data.Dance
+import hu.ait.formed.data.DanceDAO
 import hu.ait.formed.data.Form
 import hu.ait.formed.data.Dancer
+import hu.ait.formed.data.DancersDAO
+import hu.ait.formed.data.FormDAO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FormedPlaceDancersViewModel @Inject constructor(
-    private val formedDAO: FormedDAO
+    private val formDAO: FormDAO,
+    private val dancersDAO: DancersDAO
 ) : ViewModel() {
 
     private var clickedDancer: Int? = null
 
-    suspend fun getDance(id: Int): Dance {
-        return formedDAO.getDance(id)
+    fun getForm(id: Int): Flow<Form> {
+        return formDAO.getFormByID(id)
     }
 
-    fun updateDance(danceItem: Dance?) {
+    fun updateForm(formItem: Form) {
         viewModelScope.launch {
-            if (danceItem != null) {
-                formedDAO.updateDance(danceItem)
-            }
+            formDAO.updateForm(formItem)
         }
     }
 
-    fun setClickedDancer(number: Int) {
+    fun setClickedDancer(number: Int?) {
         viewModelScope.launch {
             clickedDancer = number
         }
@@ -43,12 +47,27 @@ class FormedPlaceDancersViewModel @Inject constructor(
         return clickedDancer
     }
 
-    fun dancerPoints(form: Form): List<Offset>  {
-        val list = emptyList<Offset>().toMutableList()
-        form.dancers.forEach {dancer: Dancer ->
-            list += dancer.offset
-        }
-        return list
+//    fun dancerPoints(form: Form): List<Offset>  {
+//        val list = emptyList<Offset>().toMutableList()
+//        form.dancers.forEach {dancer: Dancer ->
+//            list += dancer.offset
+//        }
+//        return list
+//    }
+
+//    fun dancerPoints(formID: Int): Flow<List<Dancer>> {
+//        var list = emptyFlow<List<Dancer>>()
+//        list = dancersDAO.getAllDancersByForm(formID)
+//        return list
+//    }
+
+    fun getAllDancersByForm(id: Int): Flow<List<Dancer>> {
+        return dancersDAO.getAllDancersByForm(id)
+    }
+
+    fun updateDancerPoints(coords: Pair<Offset, Offset>, clickedNum: Int) {
+        var dancer =
+        dancersDAO.getDancerByID(clickedNum)
     }
 
 
