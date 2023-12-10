@@ -155,11 +155,9 @@ fun FormedDanceListScreen(
                                         allDancers.forEach { dancer: Dancer ->
                                             if (dancer.formID == form.id){
                                                 danceListViewModel.removeDancer(dancer)
-                                                allDancers.remove(dancer)
                                             }
                                         }
                                         danceListViewModel.removeForm(form)
-                                        allForms.remove(form)
                                     }
                                 }
                                 danceListViewModel.removeDance(it)

@@ -128,7 +128,6 @@ fun FormedFormsListScreen(
                 IconButton(onClick = {
                     allDancers.forEach{dancer: Dancer ->
                         formsListViewModel.removeDancer(dancer)
-                        allDancers.remove(dancer)
                     }
                     formsListViewModel.clearAllForms(danceID)
                 }) {
@@ -162,7 +161,6 @@ fun FormedFormsListScreen(
                                 allDancers.forEach { dancer: Dancer ->
                                     if (dancer.formID == it.id) {
                                         formsListViewModel.removeDancer(dancer)
-                                        allDancers.remove(dancer)
                                     }
                                 }
                                 formsListViewModel.removeForm(it)}, onNavigateToPlaceDancer)
