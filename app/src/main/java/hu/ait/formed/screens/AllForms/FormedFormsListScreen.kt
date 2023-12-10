@@ -1,5 +1,6 @@
 package hu.ait.formed.screens.AllForms
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -51,6 +52,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -102,6 +104,10 @@ fun FormedFormsListScreen(
 
     formList.forEach{form: Form ->
         val dancersList by formsListViewModel.getAllDancers(form.id).collectAsState(emptyList())
+        if (dancersList.isNotEmpty()) {
+            Log.d("dancer type", "form list dancersList type: ${dancersList.first()::class.simpleName}, size: ${dancersList.size}")
+            //Log.d("dancer type", "form list dancersList first: ${(dancersList.first() as Form).title}")
+        }
         dancersList.forEach { dancer: Dancer ->
             allDancers.add(dancer)
         }
@@ -113,6 +119,12 @@ fun FormedFormsListScreen(
 
     var formListItem: Form? by rememberSaveable {
         mutableStateOf(null)
+    }
+
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            formListItem = null
+        }
     }
 
     Column {
