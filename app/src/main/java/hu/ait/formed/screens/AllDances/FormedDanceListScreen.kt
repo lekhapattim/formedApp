@@ -91,8 +91,8 @@ fun FormedDanceListScreen(
 
     val danceList by danceListViewModel.getAllDances().collectAsState(emptyList())
 
-    var allDancers = mutableListOf<Dancer>()
-    var allForms = mutableListOf<Form>()
+    val allDancers = mutableListOf<Dancer>()
+    val allForms = mutableListOf<Form>()
 
     if (danceList.isNotEmpty()){
         danceList.forEach { dance: Dance ->
