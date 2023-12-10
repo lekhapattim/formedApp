@@ -122,20 +122,20 @@ fun FormedPlaceDancersScreen(
             modifier = Modifier.fillMaxWidth(),
             containerColor = Color.White
         ) {
-            NumberedButtonList(placeDancersViewModel, numDancers)
+            NumberedButtonList(placeDancersViewModel, numDancers, placeDancersViewModel.dancerList)
         }
     }
 }
 
 @Composable
-fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDancers: Int?) {
+fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDancers: Int?, dancersList: List<Dancer>) {
     LazyRow(
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (numDancers != null) {
             items(numDancers) { index ->
-                NumberedButton(numButtonViewModel, index + 1)
+                NumberedButton(numButtonViewModel, index + 1, dancersList)
             }
         }
     }
@@ -143,14 +143,14 @@ fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDance
 
 
 @Composable
-fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?) {
+fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?, dancersList: List<Dancer>) {
 
     var isButtonClicked by remember { mutableStateOf(false) }
 
     Button(
         onClick = {
             isButtonClicked = !isButtonClicked
-            if (number != null) {
+            if (number != null && buttonViewModel.getClickedDancer() == null) {
                 buttonViewModel.setClickedDancer(number)
             }
             if (!isButtonClicked) {
@@ -158,7 +158,7 @@ fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?) {
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isButtonClicked) Color.Green else Color.Black
+            containerColor = if (isButtonClicked && !isDancerAssigned(dancersList, number) && buttonViewModel.getClickedDancer() == number) Color.Green else Color.Black
         ),
         modifier = Modifier
             .height(48.dp)
