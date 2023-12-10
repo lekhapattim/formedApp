@@ -34,8 +34,20 @@ class AnimateViewModel @Inject constructor(
     fun getFormsByDance(id: Int): Flow<List<Form>> {
         return formDAO.getFormsByDance(id)
     }
-    
+
     fun getAllDancersByForm(id: Int): Flow<List<Dancer>> {
+        return dancersDAO.getAllDancersByForm(id)
+    }
+
+    fun getAllDances(): Flow<List<Dance>> {
+        return danceDAO.getAllDances()
+    }
+
+    fun getAllForms(id: Int): Flow<List<Form>> {
+        return formDAO.getFormsByDance(id)
+    }
+
+    fun getAllDancers(id: Int): Flow<List<Dancer>> {
         return dancersDAO.getAllDancersByForm(id)
     }
 
