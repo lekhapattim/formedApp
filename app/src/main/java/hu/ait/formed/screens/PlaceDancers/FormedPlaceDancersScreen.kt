@@ -90,7 +90,8 @@ fun FormedPlaceDancersScreen(
                         val clickedNum = placeDancersViewModel.getClickedDancer()
                         if (clickedDancer != null) {
                             placeDancersViewModel.dancerList -= clickedDancer
-                        } else if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(placeDancersViewModel.dancerList, clickedNum)) {
+                        } else
+                            if (placeDancersViewModel.getClickedDancer() != null && !isDancerAssigned(placeDancersViewModel.dancerList, clickedNum)) {
                             // Add a new X at the clicked position
                             placeDancersViewModel.dancerList += (Dancer(0, clickedNum ?: 0, offset.x, offset.y, true, formID))
                             placeDancersViewModel.dancerList.forEach{dancer: Dancer ->
@@ -121,20 +122,20 @@ fun FormedPlaceDancersScreen(
             modifier = Modifier.fillMaxWidth(),
             containerColor = Color.White
         ) {
-            NumberedButtonList(placeDancersViewModel, numDancers)
+            NumberedButtonList(placeDancersViewModel, numDancers, placeDancersViewModel.dancerList)
         }
     }
 }
 
 @Composable
-fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDancers: Int?) {
+fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDancers: Int?, dancersList: List<Dancer>) {
     LazyRow(
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (numDancers != null) {
             items(numDancers) { index ->
-                NumberedButton(numButtonViewModel, index + 1)
+                NumberedButton(numButtonViewModel, index + 1, dancersList)
             }
         }
     }
@@ -142,7 +143,7 @@ fun NumberedButtonList(numButtonViewModel: FormedPlaceDancersViewModel, numDance
 
 
 @Composable
-fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?) {
+fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?, dancersList: List<Dancer>) {
 
     var isButtonClicked by remember { mutableStateOf(false) }
 
@@ -157,7 +158,7 @@ fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?) {
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isButtonClicked) Color.Green else Color.Black
+            containerColor = if (isButtonClicked && !isDancerAssigned(dancersList, number)) Color.Green else Color.Black
         ),
         modifier = Modifier
             .height(48.dp)
@@ -183,12 +184,6 @@ private fun DrawScope.drawX(topleft: Offset, botright: Offset) {
     )
 }
 
-private fun Offset.distanceTo(other: Offset): Float {
-    val dx = x - other.x
-    val dy = y - other.y
-    return kotlin.math.sqrt(dx * dx + dy * dy)
-}
-
 private fun DrawScope.drawDancers(dancersList: List<Dancer>) {
     dancersList.forEach {dancer: Dancer ->
         val dancerSize = 100F
@@ -200,7 +195,7 @@ private fun DrawScope.drawDancers(dancersList: List<Dancer>) {
 }
 
 fun isClickWithinDancer(clickOffset: Offset, dancer: Dancer): Boolean {
-    val size = 10f
+    val size = 100f
 
     return (clickOffset.x >= dancer.x &&
             clickOffset.x <= dancer.x + size &&
