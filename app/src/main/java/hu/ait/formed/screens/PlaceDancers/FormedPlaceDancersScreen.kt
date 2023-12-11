@@ -150,7 +150,7 @@ fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?, d
     Button(
         onClick = {
             isButtonClicked = !isButtonClicked
-            if (number != null && buttonViewModel.getClickedDancer() == null) {
+            if (number != null) {
                 buttonViewModel.setClickedDancer(number)
             }
             if (!isButtonClicked) {
@@ -158,7 +158,7 @@ fun NumberedButton(buttonViewModel: FormedPlaceDancersViewModel, number: Int?, d
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isButtonClicked && !isDancerAssigned(dancersList, number) && buttonViewModel.getClickedDancer() == number) Color.Green else Color.Black
+            containerColor = if (isButtonClicked && !isDancerAssigned(dancersList, number)) Color.Green else Color.Black
         ),
         modifier = Modifier
             .height(48.dp)
